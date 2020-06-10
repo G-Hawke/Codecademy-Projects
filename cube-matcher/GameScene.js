@@ -2,6 +2,7 @@
 const cubeSize = 38;
 let board;
 let score = 0;
+let hiScore = 0;
 
 class GameScene extends Phaser.Scene {
   constructor() {
@@ -24,9 +25,17 @@ class GameScene extends Phaser.Scene {
     this.physics.world.setBounds(0, 0, 480, 600);
     // Create a 12 x 12 board
     board = this.makeBoard(12);
+    // Create and display hi-score
+    hiScore += score;
+    let hiScoreText = this.add.text(15, 580, `Hi-Score: ${hiScore}`,
+    {
+      fontSize: '25px',
+      fill: '#fff'
+    });
     // Create and display score
     score = 0;
-    let scoreText = this.add.text(15, 610, `Score: ${score}`, {
+    let scoreText = this.add.text(15, 610, `Score: ${score}`
+    , {
       fontSize: '25px',
       fill: '#fff'
     });
@@ -73,11 +82,11 @@ class GameScene extends Phaser.Scene {
         scoreText.setText(`Score: ${score}`);
         // Update each cube in neighborCubes here
         neighborCubes.forEach(neighbor => {
-          // Remove neighbor cube from display
+          // Remove neigboring cube from display
           neighbor.destroy();
           // Shift remaining cubes down
           renderCubes(neighbor);
-        })
+        });
         removeCols();
       }
 
@@ -188,9 +197,11 @@ const checkClosest = (cube) => {
       results.push(board[newCol][newRow]);
     }
   });
+  
   // Return an array of neighboring cubes with the same color
   return results;
 }
+
 
 
 // Helper function to get neighborCubes of a block
@@ -213,7 +224,7 @@ const getNeighbors = (cube) => {
       match.removed = true;
       validNeighborCubes.push(match);
       cubesToCheck.push(match);
-    })
+    });
   }
   // If not enough matching cubes, clear and reset the clicked cube
   if (validNeighborCubes.length === 1) {
@@ -228,16 +239,10 @@ const getNeighbors = (cube) => {
 const removeCols = () => {
   // Declare a emptyCols here:
   const emptyCols = board.map((col, i) => {
-    // iterate over isEmpty to see if all cubes has been removed
     const isEmpty = col.every(cube => cube.removed);
-    
-    // If isEmpty returns true, then return the index otherwise return false.
+
     return isEmpty ? i : false;
-    
-    // filter out the map so only values that are truthy return.
-  }).filter(index => {
-    return index ? true : false;
-  });
+  }).filter(index => index === false ? false : true);
   // For each empty column, shift all remaining columns to the left
   emptyCols.forEach(emptyCol => {
     const columnsToMove = board.slice(emptyCol + 1);
@@ -258,7 +263,7 @@ const remainingMoves = () => {
   // Add code to return true or false at least 1 remaining move in board
   return board.some(col => {
     return doesColumnContainValidMoves(col);
-  })
+  });
 }
 
 const doesColumnContainValidMoves = (column) => {
